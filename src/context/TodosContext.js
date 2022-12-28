@@ -52,8 +52,8 @@ const TodosContextProvider = ({ children }) => {
     // add databased ------------------------------------------------------------------------------
     const addTodo = async (title) => {
         const todo = await axios.post('http://localhost:8080/todos', { title, completed: false });
-        dispatch({ type: ADD_DATABASED, todos: [todo.data.todo, ...todos] });
-        setBackupTodos([todo.data.todo, ...todos]);
+        dispatch({ type: ADD_DATABASED, todos: [todo.data.todo, ...backupTodos] });
+        setBackupTodos([todo.data.todo, ...backupTodos]);
     }
     // --------------------------------------------------------------------------------------------
 
