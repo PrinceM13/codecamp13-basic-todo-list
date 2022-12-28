@@ -68,48 +68,46 @@ const TodosContextProvider = ({ children }) => {
 
     // update databased ---------------------------------------------------------------------------
     const updateTodo = async (id, updateValue) => {
-        const idx = todos.findIndex((el) => el.id === id)
-        const tempTodos = [...todos]
-        tempTodos[idx] = { ...tempTodos[idx], ...updateValue }
+        const idx = todos.findIndex((el) => el.id === id);
+        const tempTodos = [...todos];
+        tempTodos[idx] = { ...tempTodos[idx], ...updateValue };
         await axios.put(`http://localhost:8080/todos/${id}`, tempTodos[idx])
         dispatch({ type: UPDATE_DATABASED, todos: tempTodos })
         setBackupTodos(tempTodos);
     }
     // --------------------------------------------------------------------------------------------
 
-    ///////////////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////// display //////////////////////////////////////////////
 
     // useReducer
     const [display, dispatchDisplay] = useReducer(displayReducer, { searchTerm: '', filterTerm: '' })
 
-    // display ------------------------------------------------------------------------------------    
-
-    // to control searchTerm in <SearchForms />
+    // to control searchTerm in <SearchForms /> ---------------------------------------------------
     const updateSearch = searchTerm => {
         const tempObj = { ...display, searchTerm };
         dispatchDisplay({ type: UPDATE_SEARCH, display: tempObj });
     }
 
-    // to control filterTerm in <FilterStatus />
+    // to control filterTerm in <FilterStatus /> --------------------------------------------------
     const updateFilter = filterTerm => {
         const tempObj = { ...display, filterTerm };
         dispatchDisplay({ type: UPDATE_FILTER, display: tempObj });
     }
 
-    // tracking and updating display
+    // tracking and updating display --------------------------------------------------------------
     useEffect(() => {
         const lowSearchTerm = display.searchTerm.toLowerCase()
         let completedStatus;
-        if (display.filterTerm === 'done') completedStatus = true
-        else if (display.filterTerm === 'notDone') completedStatus = false
+        if (display.filterTerm === 'done') completedStatus = true;
+        else if (display.filterTerm === 'notDone') completedStatus = false;
 
         const tempArr = backupTodos.filter(el => el.title.toLowerCase().includes(lowSearchTerm)
             && (display.filterTerm === '' || el.completed === completedStatus));
         dispatch({ type: UPDATE_DISPLAY, todos: tempArr });
-    }, [display.searchTerm, display.filterTerm]);
+    }, [display.searchTerm, display.filterTerm, backupTodos]);
 
-    const manageSearch = { searchTerm: display.searchTerm, updateSearch }
-    const manageFilter = { filterTerm: display.filterTerm, updateFilter }
+    const manageSearch = { searchTerm: display.searchTerm, updateSearch };
+    const manageFilter = { filterTerm: display.filterTerm, updateFilter };
     // --------------------------------------------------------------------------------------------
 
     return (
