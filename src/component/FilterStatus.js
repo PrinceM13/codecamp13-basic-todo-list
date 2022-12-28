@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import { useTodos } from "../context/TodosContext";
 
 const FilterStatus = () => {
-    const [filterStatus, setFilterStatus] = useState('');
+    const { manageFilter: { filterTerm, updateFilter } } = useTodos();
 
     const handleChangeFilter = (e) => {
-        setFilterStatus(e.target.value);
+        updateFilter(e.target.value);
     }
 
     return (
@@ -15,7 +15,7 @@ const FilterStatus = () => {
                 name="btnradio"
                 id="btnradio1"
                 value=''
-                checked={filterStatus === ''}
+                checked={filterTerm === ''}
                 onChange={handleChangeFilter}
             />
             <label className="btn btn-outline-secondary" htmlFor="btnradio1">
@@ -28,7 +28,7 @@ const FilterStatus = () => {
                 name="btnradio"
                 id="btnradio2"
                 value='done'
-                checked={filterStatus === 'done'}
+                checked={filterTerm === 'done'}
                 onChange={handleChangeFilter}
             />
             <label className="btn btn-outline-success" htmlFor="btnradio2">
@@ -41,7 +41,7 @@ const FilterStatus = () => {
                 name="btnradio"
                 id="btnradio3"
                 value='notDone'
-                checked={filterStatus === 'notDone'}
+                checked={filterTerm === 'notDone'}
                 onChange={handleChangeFilter}
             />
             <label className="btn btn-outline-danger" htmlFor="btnradio3">

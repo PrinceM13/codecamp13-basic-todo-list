@@ -1,22 +1,22 @@
-import { useEffect, useState } from "react";
+import { useTodos } from "../context/TodosContext";
 
 const SearchForm = () => {
-    const [search, setSearch] = useState('');
+    const { manageSearch: { searchTerm, updateSearch } } = useTodos();
 
     const handleChange = (e) => {
         const currentSearch = e.target.value.trim();
-        setSearch(currentSearch);
+        updateSearch(currentSearch);
     }
 
     const handleCancel = () => {
-        setSearch('');
+        updateSearch('');
     }
 
     return (
         <div className="input-group">
             <input
                 className={`form-control`}
-                value={search}
+                value={searchTerm}
                 onChange={handleChange}
                 placeholder='Search'
             />
