@@ -30,12 +30,17 @@ const Item = ({ todo }) => {
         setEditItem(todo.title);
     }
 
+    const onEditMode = () => {
+        setEditItem(todo.title)
+        setIsEdit(!isEdit)
+    }
+
     // item: display mode
     const displayItemMode = <div className="d-flex align-items-center">
         <div
             className="flex-fill"
             role='button'
-            onClick={() => setIsEdit(!isEdit)}
+            onClick={onEditMode}
         >
             {todo.title}
         </div>
