@@ -1,48 +1,25 @@
 import { createContext, useContext, useReducer, useEffect, useState } from "react";
-import axios from 'axios';
+import axios from '../config/axios';
+import { todosReducer, INITIAL_TODO, displayReducer, INITIAL_DISPLAY } from "../reducer/TodoReducer";
+import { FETCH_DATABASED, ADD_DATABASED, DELETE_DATABASED, UPDATE_DATABASED, UPDATE_DISPLAY } from "../reducer/TodoReducer";
+import { UPDATE_SEARCH, UPDATE_FILTER } from "../reducer/TodoReducer";
 
 const TodosContext = createContext();    // create storage
 
-const FETCH_DATABASED = 'FETCH_DATABASED';
-const ADD_DATABASED = 'ADD_DATABASED';
-const DELETE_DATABASED = 'DELETE_DATABASED';
-const UPDATE_DATABASED = 'DELETE_DATABASED';
-const UPDATE_DISPLAY = 'UPDATE_DISPLAY';
-
-const todosReducer = (state, action) => {
-    switch (action.type) {
-        // for databaseds
-        case FETCH_DATABASED: return action.todos;
-        case ADD_DATABASED: return action.todos;
-        case DELETE_DATABASED: return action.todos;
-        case UPDATE_DATABASED: return action.todos;
-        // for display
-        case UPDATE_DISPLAY: return action.todos;
-        default: return state;
-    }
-}
-
-const UPDATE_SEARCH = 'UPDATE_SEARCH';
-const UPDATE_FILTER = 'UPDATE_FILTER';
-
-const displayReducer = (state, action) => {
-    switch (action.type) {
-        case UPDATE_SEARCH: return action.display;
-        case UPDATE_FILTER: return action.display;
-        default: return state;
-    }
-}
-
 const TodosContextProvider = ({ children }) => {
     // useReducer
-    const [todos, dispatch] = useReducer(todosReducer, []);
+    const [todos, dispatch] = useReducer(todosReducer, INITIAL_TODO);
     const [backupTodos, setBackupTodos] = useState([]);
 
     // get database -------------------------------------------------------------------------------
     const getDataFromDatabased = async () => {
-        const res = await axios.get('http://localhost:8080/todos');
-        dispatch({ type: FETCH_DATABASED, todos: res.data.todos });
-        setBackupTodos(res.data.todos);
+        try {
+            const res = await axios.get('/todos');
+            dispatch({ type: FETCH_DATABASED, payload: res.data.todos });
+            setBackupTodos(res.data.todos);
+        } catch (err) {
+            console.log(err);
+        }
     }
     useEffect(() => {
         getDataFromDatabased();
@@ -51,18 +28,26 @@ const TodosContextProvider = ({ children }) => {
 
     // add databased ------------------------------------------------------------------------------
     const addTodo = async (title) => {
-        const todo = await axios.post('http://localhost:8080/todos', { title, completed: false });
-        dispatch({ type: ADD_DATABASED, todos: [todo.data.todo, ...backupTodos] });
-        setBackupTodos([todo.data.todo, ...backupTodos]);
+        try {
+            const res = await axios.post('/todos', { title, completed: false });
+            dispatch({ type: ADD_DATABASED, payload: [res.data.todo, ...backupTodos] });
+            setBackupTodos([res.data.todo, ...backupTodos]);
+        } catch (err) {
+            console.log(err);
+        }
     }
     // --------------------------------------------------------------------------------------------
 
     // delete databased ---------------------------------------------------------------------------
     const deleteTodo = async (id) => {
-        await axios.delete(`http://localhost:8080/todos/${id}`);
-        const tempTodos = todos.filter((el) => el.id !== id);
-        dispatch({ type: DELETE_DATABASED, todos: tempTodos });
-        setBackupTodos(tempTodos);
+        try {
+            await axios.delete(`/todos/${id}`);
+            const tempTodos = todos.filter((el) => el.id !== id);
+            dispatch({ type: DELETE_DATABASED, payload: tempTodos });
+            setBackupTodos(tempTodos);
+        } catch (err) {
+            console.log(err);
+        }
     }
     // --------------------------------------------------------------------------------------------
 
@@ -71,8 +56,8 @@ const TodosContextProvider = ({ children }) => {
         const idx = todos.findIndex((el) => el.id === id);
         const tempTodos = [...todos];
         tempTodos[idx] = { ...tempTodos[idx], ...updateValue };
-        await axios.put(`http://localhost:8080/todos/${id}`, tempTodos[idx])
-        dispatch({ type: UPDATE_DATABASED, todos: tempTodos })
+        await axios.put(`/todos/${id}`, tempTodos[idx])
+        dispatch({ type: UPDATE_DATABASED, payload: tempTodos })
         setBackupTodos(tempTodos);
     }
     // --------------------------------------------------------------------------------------------
@@ -80,7 +65,7 @@ const TodosContextProvider = ({ children }) => {
     //////////////////////////////////////// display //////////////////////////////////////////////
 
     // useReducer
-    const [display, dispatchDisplay] = useReducer(displayReducer, { searchTerm: '', filterTerm: '' })
+    const [display, dispatchDisplay] = useReducer(displayReducer, INITIAL_DISPLAY)
 
     // to control searchTerm in <SearchForms /> ---------------------------------------------------
     const updateSearch = searchTerm => {
@@ -103,7 +88,7 @@ const TodosContextProvider = ({ children }) => {
 
         const tempArr = backupTodos.filter(el => el.title.toLowerCase().includes(lowSearchTerm)
             && (display.filterTerm === '' || el.completed === completedStatus));
-        dispatch({ type: UPDATE_DISPLAY, todos: tempArr });
+        dispatch({ type: UPDATE_DISPLAY, payload: tempArr });
     }, [display.searchTerm, display.filterTerm, backupTodos]);
 
     const manageSearch = { searchTerm: display.searchTerm, updateSearch };

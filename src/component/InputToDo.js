@@ -45,7 +45,7 @@ const InputToDo = () => {
                     <i className="fa-solid fa-xmark" />
                 </button>
             </div>
-            {/* {error && <small className='text-danger'>{error}</small>} */}
+            {error && <small className='text-danger'>{error}</small>}
         </form>
     );
 }
